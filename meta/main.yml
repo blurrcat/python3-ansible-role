@@ -1,0 +1,19 @@
+---
+
+galaxy_info:
+  author: AlliedPlatform Contributors
+  company: AlliedPlatform
+  description: "Ansible role for installing a Python 3.x version from source."
+  min_ansible_version: 1.9
+  license: MIT
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+  categories:
+  - system
+  - development
+
+dependencies:
+  - ANXS.build-essential
+  - alliedplatform.security

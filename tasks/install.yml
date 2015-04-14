@@ -1,0 +1,65 @@
+---
+
+- name: Include Ubuntu-specific tasks
+  include: install/Ubuntu.yml
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Write out the Python version and the flags used for the build
+  template:
+    src: .python_compilation_flags.j2
+    dest: "{{ python_configuration_dir }}/.python_compilation_flags"
+  register: python_build_flags
+
+- name: Creates Python source directory
+  file:
+    path: "{{ python_source_dir }}"
+    state: directory
+  when: python_build_flags.changed
+
+- name: Download the XZ-compressed Python source
+  get_url:
+    url: "https://www.python.org/ftp/python/{{ python_version }}/Python-{{ python_version }}.tar.xz"
+    dest: "{{ python_compressed_source_path }}"
+  when: python_build_flags.changed
+
+- name: Compute the md5sum of the compressed Python source
+  stat:
+    path: "{{ python_compressed_source_path }}"
+    get_md5: yes
+  register: p
+  when: python_build_flags.changed
+
+- name: Verify the md5sum of the compressed Python source
+  fail:
+    msg: "The md5sum of the compressed Python source does not match the expected value"
+  when: p.stat.md5 != "{{ python_compressed_source_md5sum }}"
+
+- name: Unpack the Python source and remove the compressed Python source
+  shell: >
+    tar -xJC {{ python_source_dir }} --strip-components=1 -f {{ python_compressed_source_path }} &&
+    rm {{ python_compressed_source_path }}
+  when: python_build_flags.changed
+
+- name: Remove compressed Python source
+  file:
+    path: "{{ python_compressed_source_path }}"
+    state: absent
+
+- name: Configure makefile, compile and install Python binaries
+  shell: >
+    cd {{ python_source_dir }} &&
+    ./configure {{ python_source_default_configure_flags }} &&
+    make -j$(nproc) &&
+    make altinstall
+  when: python_build_flags.changed
+
+- name: Update system shared libraries to include new Python libraries
+  command: ldconfig
+  args:
+    chdir: "{{ python_source_dir }}"
+  when: python_build_flags.changed
+
+- name: Remove uncompressed Python source
+  file:
+    path: "{{ python_source_dir }}"
+    state: absent
