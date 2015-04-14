@@ -1,0 +1,9 @@
+---
+
+python_version: 3.4.3
+python_compressed_source_md5sum: 7d092d1bba6e17f0d9bd21b49e441dd5
+
+python_configuration_dir: "/etc/python"
+python_compressed_source_path: "/var/tmp/python.tar.xz"
+python_source_dir: "/usr/src/python"
+python_source_default_configure_flags: "--enable-shared"
