@@ -6,8 +6,16 @@
     update_cache: yes
     force: yes
     state: installed
+  sudo: yes
 
 - name: Ensure that the UTF-8 locale is present and set
   locale_gen:
     name: en_US.UTF-8
     state: present
+
+- name: Remove any current Python packages via APT
+  apt:
+    name: python3*
+    force: yes
+    state: absent
+  sudo: yes

@@ -4,28 +4,72 @@
   include: install/Ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
+- name: Create the operating system-level group to interact with Python
+  group:
+    name: "{{ python_group }}"
+    state: present
+  sudo: yes
+  register: python_os_group
+
+- name: Create the operating system-level user to interact with Python
+  user:
+    name: "{{ python_user }}"
+    group: "{{ python_group }}"
+    shell: /bin/false
+    state: present
+    system: yes
+  sudo: yes
+  register: python_os_user
+
+- name: Set the appropriate expiration on the dedicated user for Python interaction
+  command: "sudo chage -I -1 -E -1 -m -1 -M -1 -W -1 -E -1 {{ python_user }}"
+  when: python_os_group.changed or python_os_user.changed
+
+- name: Create the Python configuration directory
+  file:
+    path: "{{ python_configuration_dir }}"
+    state: directory
+  sudo: yes
+  sudo_user: "{{ python_user }}"
+
+- name: Set the directory permissions for the Python configuration directory
+  file:
+    path: "{{ python_configuration_dir }}"
+    owner: "{{ python_user }}"
+    group: "{{ python_group }}"
+    mode: 0755
+    state: directory
+
 - name: Write out the Python version and the flags used for the build
   template:
     src: .python_compilation_flags.j2
     dest: "{{ python_configuration_dir }}/.python_compilation_flags"
+  sudo: yes
+  sudo_user: "{{ python_user }}"
   register: python_build_flags
 
 - name: Creates Python source directory
   file:
     path: "{{ python_source_dir }}"
     state: directory
+  sudo: yes
+  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
 - name: Download the XZ-compressed Python source
   get_url:
-    url: "https://www.python.org/ftp/python/{{ python_version }}/Python-{{ python_version }}.tar.xz"
+    url: "https://www.python.org/ftp/python/{{ python_major_minor_patch_version }}/Python-{{ python_major_minor_patch_version }}.tar.xz"
     dest: "{{ python_compressed_source_path }}"
+  sudo: yes
+  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
 - name: Compute the md5sum of the compressed Python source
   stat:
     path: "{{ python_compressed_source_path }}"
     get_md5: yes
+  sudo: yes
+  sudo_user: "{{ python_user }}"
   register: p
   when: python_build_flags.changed
 
@@ -38,12 +82,9 @@
   shell: >
     tar -xJC {{ python_source_dir }} --strip-components=1 -f {{ python_compressed_source_path }} &&
     rm {{ python_compressed_source_path }}
+  sudo: yes
+  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
-
-- name: Remove compressed Python source
-  file:
-    path: "{{ python_compressed_source_path }}"
-    state: absent
 
 - name: Configure makefile, compile and install Python binaries
   shell: >
@@ -51,15 +92,52 @@
     ./configure {{ python_source_default_configure_flags }} &&
     make -j$(nproc) &&
     make altinstall
+  sudo: yes
+  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
-- name: Update system shared libraries to include new Python libraries
-  command: ldconfig
-  args:
-    chdir: "{{ python_source_dir }}"
-  when: python_build_flags.changed
-
-- name: Remove uncompressed Python source
+- name: Remove uncompressed Python source and build artifacts
   file:
     path: "{{ python_source_dir }}"
     state: absent
+  sudo: yes
+  sudo_user: "{{ python_user }}"
+
+- name: Update system shared libraries to include new Python libraries
+  shell: >
+    ldconfig "{{ python_libraries_dir }}"
+  sudo: yes
+  when: python_build_flags.changed
+
+- name: Bootstrap the pip installer
+  shell: >
+    "{{ python_exec_path }}" -m ensurepip --altinstall
+  sudo: yes
+  sudo_user: "{{ python_user }}"
+  when: python_build_flags.changed
+
+- name: Ensure pip is at the latest version
+  shell: >
+    "{{ python_pip_exec_path }}" install pip --upgrade
+  sudo: yes
+  sudo_user: "{{ python_user }}"
+  when: python_virtualenv_install
+
+- name: Install virtualenv via pip
+  pip:
+    name: virtualenv
+    executable: "{{ python_pip_exec_path }}"
+  sudo: yes
+  sudo_user: "{{ python_user }}"
+  when: python_virtualenv_install
+
+- name: Create and populate the specified Python virtual environments
+  pip:
+    requirements: "{{ item.requirements }}"
+    virtualenv: "{{ python_virtualenv_home_dir }}/{{ item.name }}"
+    virtualenv_command: "{{ python_virtualenv_exec_path }}"
+    executable: "{{ python_pip_exec_path }}"
+  sudo: yes
+  sudo_user: "{{ python_user }}"
+  with_items: python_virtualenvs
+  when: python_virtualenv_install and python_virtualenvs|length > 0
