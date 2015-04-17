@@ -1,4 +1,6 @@
 - hosts: all
+  roles:
+    - alliedplatform.security
   vars_files:
     - 'defaults/main.yml'
   tasks:

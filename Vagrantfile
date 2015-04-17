@@ -8,7 +8,8 @@ Vagrant.configure('2') do |config|
     c.vm.hostname = 'ap.local'
     c.vm.provision 'ansible' do |ansible|
       ansible.playbook = 'test.yml'
-      ansible.sudo = true
+      ansible.verbose = 'vv'
+      ansible.extra_vars = 'test_vars.yml'
       ansible.inventory_path = 'vagrant-inventory'
       ansible.host_key_checking = false
     end
