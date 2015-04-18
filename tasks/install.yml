@@ -70,13 +70,13 @@
     get_md5: yes
   sudo: yes
   sudo_user: "{{ python_user }}"
-  register: p
+  register: python_source_verification
   when: python_build_flags.changed
 
 - name: Verify the md5sum of the compressed Python source
   fail:
     msg: "The md5sum of the compressed Python source does not match the expected value"
-  when: p.stat.md5 != "{{ python_compressed_source_md5sum }}"
+  when: python_source_verification is defined and python_source_verification.stat.md5 != "{{ python_compressed_source_md5sum }}"
 
 - name: Unpack the Python source and remove the compressed Python source
   shell: >
@@ -121,6 +121,8 @@
     "{{ python_pip_exec_path }}" install pip --upgrade
   sudo: yes
   sudo_user: "{{ python_user }}"
+  register: pip_upgrade_output
+  changed_when: '"""${pip_upgrade_output.stdout}""".find("Requirement already up-to-date") != -1'
   when: python_virtualenv_install
 
 - name: Install virtualenv via pip
