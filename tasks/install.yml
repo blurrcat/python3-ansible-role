@@ -28,9 +28,10 @@
 - name: Create the Python configuration directory
   file:
     path: "{{ python_configuration_dir }}"
+    owner: "{{ python_user }}"
+    group: "{{ python_group }}"
     state: directory
   sudo: yes
-  sudo_user: "{{ python_user }}"
 
 - name: Set the directory permissions for the Python configuration directory
   file:
@@ -39,6 +40,7 @@
     group: "{{ python_group }}"
     mode: 0755
     state: directory
+  sudo: yes
 
 - name: Write out the Python version and the flags used for the build
   template:
@@ -53,15 +55,13 @@
     path: "{{ python_source_dir }}"
     state: directory
   sudo: yes
-  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
 - name: Download the XZ-compressed Python source
   get_url:
-    url: "https://www.python.org/ftp/python/{{ python_major_minor_patch_version }}/Python-{{ python_major_minor_patch_version }}.tar.xz"
+    url: "{{ python_source_url }}"
     dest: "{{ python_compressed_source_path }}"
   sudo: yes
-  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
 - name: Compute the md5sum of the compressed Python source
@@ -69,7 +69,6 @@
     path: "{{ python_compressed_source_path }}"
     get_md5: yes
   sudo: yes
-  sudo_user: "{{ python_user }}"
   register: python_source_verification
   when: python_build_flags.changed
 
@@ -83,7 +82,6 @@
     tar -xJC {{ python_source_dir }} --strip-components=1 -f {{ python_compressed_source_path }} &&
     rm {{ python_compressed_source_path }}
   sudo: yes
-  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
 - name: Configure makefile, compile and install Python binaries
@@ -93,15 +91,22 @@
     make -j$(nproc) &&
     make altinstall
   sudo: yes
-  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
+
+- name: Update ownership on the Python install directory and its contents
+  file:
+    path: "{{ python_install_prefix_dir }}"
+    owner: "{{ python_user }}"
+    group: "{{ python_group }}"
+    recurse: yes
+    state: directory
+  sudo: yes
 
 - name: Remove uncompressed Python source and build artifacts
   file:
     path: "{{ python_source_dir }}"
     state: absent
   sudo: yes
-  sudo_user: "{{ python_user }}"
 
 - name: Update system shared libraries to include new Python libraries
   shell: >

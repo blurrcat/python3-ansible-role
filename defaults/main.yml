@@ -1,9 +1,9 @@
 ---
 
-python_configuration_dir: "/home/{{ python_user }}/etc/python"
-python_compressed_source_path: "/var/tmp/python.tar.xz"
-python_source_dir: "/home/{{ python_user }}/src/python"
-python_install_prefix_dir: "/home/{{ python_user }}/local"
+python_configuration_dir: "/etc/python"
+python_compressed_source_path: "/tmp/python.tar.xz"
+python_source_dir: "/src/python"
+python_install_prefix_dir: "/opt/python"
 python_binaries_dir: "{{ python_install_prefix_dir }}/bin"
 python_libraries_dir: "{{ python_install_prefix_dir }}/lib"
 python_exec_path: "{{ python_binaries_dir }}/python{{ python_major_minor_version }}"
@@ -16,4 +16,6 @@ python_user: "python-data"
 python_group: "python-data"
 
 python_virtualenv_install: yes
-python_virtualenv_home_dir: "/home/{{ python_user }}/venv"
+python_virtualenv_home_dir: "{{ python_configuration_dir }}/virtual-envs"
+
+python_source_url: "https://www.python.org/ftp/python/{{ python_major_minor_patch_version }}/Python-{{ python_major_minor_patch_version }}.tar.xz"
