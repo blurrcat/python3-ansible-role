@@ -1,0 +1,28 @@
+---
+
+- name: Create the operating system-level group to interact with Python
+  group:
+    name: "{{ python_group }}"
+    state: present
+  sudo: yes
+
+- name: Create the operating system-level user to interact with Python
+  user:
+    name: "{{ python_user }}"
+    group: "{{ python_group }}"
+    shell: /bin/false
+    state: present
+    system: yes
+  sudo: yes
+
+- name: Check the Python user current password expiry
+  command: grep {{ python_user }} /etc/shadow
+  sudo: yes
+  register: python_old_password
+  changed_when: false
+
+- name: Set the correct expiration on the Python user
+  shell: "chage -I -1 -E -1 -m -1 -M -1 -W -1 -E -1 {{ python_user }} && grep {{ python_user }} /etc/shadow"
+  sudo: yes
+  register: python_new_password
+  changed_when: python_new_password.stdout != python_old_password.stdout

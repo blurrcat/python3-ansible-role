@@ -1,29 +1,11 @@
 ---
 
-- name: Include Ubuntu-specific tasks
+- name: Include Ubuntu-specific installation tasks
   include: install/Ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
-- name: Create the operating system-level group to interact with Python
-  group:
-    name: "{{ python_group }}"
-    state: present
-  sudo: yes
-  register: python_os_group
-
-- name: Create the operating system-level user to interact with Python
-  user:
-    name: "{{ python_user }}"
-    group: "{{ python_group }}"
-    shell: /bin/false
-    state: present
-    system: yes
-  sudo: yes
-  register: python_os_user
-
-- name: Set the appropriate expiration on the dedicated user for Python interaction
-  command: "sudo chage -I -1 -E -1 -m -1 -M -1 -W -1 -E -1 {{ python_user }}"
-  when: python_os_group.changed or python_os_user.changed
+- name: Include Python user management tasks
+  include: user.yml
 
 - name: Create the Python configuration directory
   file:
