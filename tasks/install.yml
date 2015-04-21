@@ -69,7 +69,7 @@
 - name: Configure makefile, compile and install Python binaries
   shell: >
     cd {{ python_source_dir }} &&
-    ./configure {{ python_source_default_configure_flags }} &&
+    ./configure {{ python_source_configure_flags }} &&
     make -j$(nproc) &&
     make altinstall
   sudo: yes

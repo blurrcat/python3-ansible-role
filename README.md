@@ -39,14 +39,13 @@ python_virtualenvs:
 - `python_configuration_dir` - the absolute directory to hold the build flags manifest for the Python installation. This directory will hold a `.python_compilation_flags` manifest which, in turn, contains the Python version that was build along with the build flags used. The `.python_compilation_flags` manifest is used by Ansible to check if any changes are needed to the host on subsequent playbook runs. By default, this is set to `/etc/python`.
 - `python_compressed_source_path` - the absolute destination path for the XZ-compressed Python source when downloaded to the host. The compressed Python source will be deleted after it is extracted. By default, this is set to `/tmp/python.tar.xz`.
 - `python_source_dir` - the absolute uncompressed Python source directory (build directory). By default, this is set to `/src/python`.
-- `python_source_default_configure_flags` - the build flags to use during the makefile generation.
+- `python_source_configure_flags` - the build flags to use during the makefile generation.
 - `python_install_prefix_dir` - the absolute directory to where the Python `bin`, `include`, `lib` and `share` directories and files will be installed after the build. By default, this is set to `/opt/python`.
 - `python_binaries_dir` - the absolute directory to the Python `bin` directory.
 - `python_libraries_dir` - the absolute directory to the Python `lib` directory.
 - `python_exec_path` - the absolute path to the Python interpreter binary that was installed after the build process.
 - `python_pip_exec_path` - the absolute path to the `pip` executable.
 - `python_virtualenv_exec_path` - the absolute path to the `virtualenv` executable.
-- `python_source_default_configure_flags` - the configure flags used when generating the makefile for building Python.
 - `python_user` - the user who owns the Python installation and the contents of the Python virtual environments. The default setting is `python-data`.
 - `python_group` - the user group to which the `python_user` belongs. The default setting is `python-data`.
 - `python_virtualenv_install` - determines if Python virtual environments are to be installed. The default setting is `yes`.
