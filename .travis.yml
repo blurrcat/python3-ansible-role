@@ -13,9 +13,9 @@ install:
 script:
   - echo localhost > inventory
   - ansible-playbook -i inventory test.yml --syntax-check
-  - ansible-playbook -i inventory test.yml --connection=local -e '@test_vars.yml' -vv
+  - ansible-playbook -i inventory test.yml --connection=local -e '@travis_test_vars.yml' -vv
   - >
-    ansible-playbook -i inventory test.yml --connection=local -e '@test_vars.yml'
+    ansible-playbook -i inventory test.yml --connection=local -e '@travis_test_vars.yml'
     | grep -q 'changed=0.*failed=0'
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && exit 1)
