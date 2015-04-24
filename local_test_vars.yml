@@ -1,0 +1,10 @@
+---
+
+python_major_minor_version: '3.4'
+python_major_minor_patch_version: '3.4.3'
+python_compressed_source_md5sum: '7d092d1bba6e17f0d9bd21b49e441dd5'
+python_virtualenvs:
+  - name: 'virtualenv1'
+    requirements: '/app/virtualenv1_requirements.txt'
+  - name: 'virtualenv2'
+    requirements: '/app/virtualenv2_requirements.txt'

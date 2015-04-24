@@ -55,19 +55,22 @@ python_virtualenvs:
 
 ##### Local tests
 
-A Vagrantfile has been included with this project to provision a virtual machine with the Ansible role using some test data. Due to the fact that this role has hard dependencies on other roles, the typical `vagrant up` command cannot be run directly. Instead, a `test.sh` Bash script is provided at the root of this repository to gather the required Ansible roles from the Ansible Galaxy service and then provision the Vagrant virtual machine. Please execute the following steps to use the `test.sh` script:
+A Vagrantfile has been included with this project to provision a virtual machine with the Ansible role using some test data. Due to the fact that this role has hard dependencies on other roles, the typical `vagrant up` command cannot be run directly. Instead, a `local_test.sh` Bash script is provided at the root of this repository to gather the required Ansible roles from the Ansible Galaxy service and then provision the Vagrant virtual machine. Please execute the following steps to use the `local_test.sh` script:
 
-1. Provide the `test.sh` script with execute permissions.
-
-```
-$ chmod +x test.sh
-```
-
-2. Run the `test.sh` script.
+1. Provide the `local_test.sh` script with execute permissions.
 
 ```
-$ ./test.sh
+$ chmod +x local_test.sh
 ```
+
+2. Run the `local_test.sh` script.
+
+```
+$ ./local_test.sh
+```
+
+The `local_test.sh` script will report either a **pass** or **fail** for the
+idempotence test at the conclusion of the script execution.
 
 To destroy the Vagrant virtual machine after the provisioning process is complete, execute `vagrant destroy` and follow the prompts.
 
