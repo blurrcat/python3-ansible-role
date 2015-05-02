@@ -14,6 +14,7 @@ Ansible role for installing a Python 3.x version from source.
 #### Role Dependencies
 
 - [alliedplatform.security](https://github.com/alliedplatform/security-ansible-role)
+- [alliedplatform.build-deps](https://github.com/alliedplatform/build-deps-ansible-role)
 
 #### Variables
 

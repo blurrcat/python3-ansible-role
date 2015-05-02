@@ -16,3 +16,4 @@ galaxy_info:
 
 dependencies:
   - alliedplatform.security
+  - alliedplatform.build-deps
