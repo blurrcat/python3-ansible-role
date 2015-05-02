@@ -47,8 +47,6 @@ python_virtualenvs:
 - `python_exec_path` - the absolute path to the Python interpreter binary that was installed after the build process.
 - `python_pip_exec_path` - the absolute path to the `pip` executable.
 - `python_virtualenv_exec_path` - the absolute path to the `virtualenv` executable.
-- `python_user` - the user who owns the Python installation and the contents of the Python virtual environments. The default setting is `python-data`.
-- `python_group` - the user group to which the `python_user` belongs. The default setting is `python-data`.
 - `python_virtualenv_install` - determines if Python virtual environments are to be installed. The default setting is `yes`.
 - `python_virtualenv_home_dir` - the absolute directory to where the Python virtual environments will be created.
 
