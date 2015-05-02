@@ -1,13 +1,5 @@
 ---
 
-- name: Install autoconf package
-  apt:
-    name: autoconf
-    update_cache: yes
-    force: yes
-    state: installed
-  sudo: yes
-
 - name: Ensure that the UTF-8 locale is present and set
   locale_gen:
     name: en_US.UTF-8
