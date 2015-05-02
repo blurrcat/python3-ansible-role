@@ -12,9 +12,6 @@ python_virtualenv_exec_path: "{{ python_binaries_dir }}/virtualenv"
 
 python_source_configure_flags: "--enable-shared --prefix={{ python_install_prefix_dir }}"
 
-python_user: "python-data"
-python_group: "python-data"
-
 python_virtualenv_install: yes
 python_virtualenv_home_dir: "{{ python_configuration_dir }}/virtual-envs"
 

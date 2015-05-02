@@ -4,22 +4,11 @@
   include: install/Ubuntu.yml
   when: ansible_distribution == 'Ubuntu'
 
-- name: Include Python user management tasks
-  include: user.yml
-
 - name: Create the Python configuration directory
   file:
     path: "{{ python_configuration_dir }}"
-    owner: "{{ python_user }}"
-    group: "{{ python_group }}"
-    state: directory
-  sudo: yes
-
-- name: Set the directory permissions for the Python configuration directory
-  file:
-    path: "{{ python_configuration_dir }}"
-    owner: "{{ python_user }}"
-    group: "{{ python_group }}"
+    owner: root
+    group: root
     mode: 0755
     state: directory
   sudo: yes
@@ -29,7 +18,6 @@
     src: .python_compilation_flags.j2
     dest: "{{ python_configuration_dir }}/.python_compilation_flags"
   sudo: yes
-  sudo_user: "{{ python_user }}"
   register: python_build_flags
 
 - name: Creates Python source directory
@@ -75,15 +63,6 @@
   sudo: yes
   when: python_build_flags.changed
 
-- name: Update ownership on the Python install directory and its contents
-  file:
-    path: "{{ python_install_prefix_dir }}"
-    owner: "{{ python_user }}"
-    group: "{{ python_group }}"
-    recurse: yes
-    state: directory
-  sudo: yes
-
 - name: Remove uncompressed Python source and build artifacts
   file:
     path: "{{ python_source_dir }}"
@@ -108,14 +87,12 @@
   shell: >
     "{{ python_exec_path }}" -m ensurepip --altinstall
   sudo: yes
-  sudo_user: "{{ python_user }}"
   when: python_build_flags.changed
 
 - name: Ensure pip is at the latest version
   shell: >
     "{{ python_pip_exec_path }}" install pip --upgrade
   sudo: yes
-  sudo_user: "{{ python_user }}"
   register: pip_upgrade_output
   changed_when: '"""${pip_upgrade_output.stdout}""".find("Requirement already up-to-date") != -1'
   when: python_virtualenv_install
@@ -125,7 +102,6 @@
     name: virtualenv
     executable: "{{ python_pip_exec_path }}"
   sudo: yes
-  sudo_user: "{{ python_user }}"
   when: python_virtualenv_install
 
 - name: Create and populate the specified Python virtual environments
@@ -135,6 +111,5 @@
     virtualenv_command: "{{ python_virtualenv_exec_path }}"
     executable: "{{ python_virtualenv_home_dir }}/{{ item.name }}/bin/pip{{ python_major_minor_version }}"
   sudo: yes
-  sudo_user: "{{ python_user }}"
   with_items: python_virtualenvs
   when: python_virtualenv_install and python_virtualenvs|length > 0
