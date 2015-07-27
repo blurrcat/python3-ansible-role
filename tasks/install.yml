@@ -91,7 +91,7 @@
 
 - name: Ensure pip is at the latest version
   shell: >
-    "{{ python_pip_exec_path }}" install pip --upgrade
+    "{{ python_pip_exec_path }}" install pip --upgrade --no-cache-dir
   sudo: yes
   register: pip_upgrade_output
   changed_when: '"""${pip_upgrade_output.stdout}""".find("Requirement already up-to-date") != -1'
@@ -101,6 +101,7 @@
   pip:
     name: virtualenv
     executable: "{{ python_pip_exec_path }}"
+    extra_args: "--no-cache-dir"
   sudo: yes
   when: python_virtualenv_install
 
